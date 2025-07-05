@@ -106,6 +106,17 @@ const DashboardLayout = () => {
                     <span>Active Riders</span>
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    to="/dashboard/assign-rider"
+                    className="flex items-center p-3 rounded-lg hover:bg-red-50 group"
+                    style={{ color: "#000000" }}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <FiUserPlus className="mr-3" style={{ color: "#E30613" }} />
+                    <span>Assign Rider</span>
+                  </Link>
+                </li>
 
                 <li>
                   <Link

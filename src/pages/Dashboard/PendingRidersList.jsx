@@ -6,8 +6,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { FaCheck, FaTimes, FaEye, FaUserClock } from "react-icons/fa";
-import useAxiosSecure from "../../hook/useAxiosSecure";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../../hook/useAxiosSecure";
 
 const PendingRidersList = () => {
   const axiosSecure = useAxiosSecure();
