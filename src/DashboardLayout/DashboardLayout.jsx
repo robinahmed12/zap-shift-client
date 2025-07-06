@@ -78,6 +78,18 @@ const DashboardLayout = () => {
               </Link>
             </li>
 
+            <li>
+              <Link
+                to="/dashboard/pending-deliveries"
+                className="flex items-center p-3 rounded-lg hover:bg-red-50 group"
+                style={{ color: "#000000" }}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <FiClock className="mr-3" style={{ color: "#E30613" }} />
+                <span>Pending Deliveries</span>
+              </Link>
+            </li>
+
             {role === "admin" && (
               <>
                 <li>

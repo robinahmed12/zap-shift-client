@@ -41,14 +41,22 @@ const AssignRider = () => {
     enabled: !!selectedParcel, // Fetch riders only when parcel is selected
   });
 
+  
+
   // Mutation to assign rider
   const { mutate: assignRider } = useMutation({
     mutationFn: async ({ parcelId, rider }) => {
+      console.log(rider?.applicantEmail);
+      
+      
       const res = await axiosSecure.patch(`/parcels/${parcelId}/assign-rider`, {
         riderId: rider._id,
         riderName: rider.fullName,
         riderPhone: rider.phone,
+        riderEmail: rider.applicantEmail
+        
       });
+      
       return res.data;
     },
     onSuccess: () => {
