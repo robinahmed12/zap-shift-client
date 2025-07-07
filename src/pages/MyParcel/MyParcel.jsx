@@ -77,6 +77,7 @@ const MyParcel = () => {
                 <th className="py-3 px-4 text-left">Payment</th>
                 <th className="py-3 px-4 text-left">Status</th>
                 <th className="py-3 px-4 text-left">Actions</th>
+                <th className="py-3 px-4 text-left">title</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -138,6 +139,19 @@ const MyParcel = () => {
                         <FaTrash />
                       </button>
                     </div>
+                  </td>
+                  <td className="py-4 px-4">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        parcel.status === "delivered"
+                          ? "bg-green-100 text-green-800"
+                          : parcel.status === "in transit"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {parcel.title}
+                    </span>
                   </td>
                 </tr>
               ))}

@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import useAuth from "../../hook/useAuth";
 import useAxiosSecure from "../../hook/useAxiosSecure";
+import useTracking from "../../hook/useTracking";
 
 const CheckOutForm = () => {
   const stripe = useStripe();
@@ -13,6 +14,7 @@ const CheckOutForm = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
+  const { saveTracking } = useTracking();
 
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -87,6 +89,15 @@ const CheckOutForm = () => {
             // Step 4: Update Parcel Payment Status
             await axiosSecure.patch(`/parcels/payment-status/${parcelId}`, {});
 
+            // 🔥 Step 5: Save Tracking Entry
+            saveTracking({
+              tracking_id: parcelInfo.tracking_id, // You must pass tracking_id to this component
+              status: "Payment Completed",
+              details: `Payment done successfully by ${user.displayName}`,
+              updated_by: user?.email,
+              timestamp: new Date().toISOString(),
+            });
+
             // Step 5: Show SweetAlert
             await Swal.fire({
               icon: "success",
@@ -138,7 +149,9 @@ const CheckOutForm = () => {
           <h2 className="text-2xl font-bold text-white">
             Parcel Delivery Payment
           </h2>
-          <p className="text-gold-400 text-neutral-400 mt-1">Secure payment processing</p>
+          <p className="text-gold-400 text-neutral-400 mt-1">
+            Secure payment processing
+          </p>
         </div>
 
         <div className="p-8">

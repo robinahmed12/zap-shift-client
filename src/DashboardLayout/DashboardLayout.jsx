@@ -1,6 +1,7 @@
 import { Link, Outlet } from "react-router-dom";
 import { useState } from "react";
 import { FiHome, FiPackage, FiMenu, FiX } from "react-icons/fi";
+import { FiCheckCircle } from 'react-icons/fi';
 import { FiDollarSign, FiClock, FiUserCheck, FiUserPlus } from "react-icons/fi";
 import useAuth from "../hook/useAuth";
 import useUserRole from "../hook/useUserRole";
@@ -28,9 +29,8 @@ const DashboardLayout = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static z-30 w-64 h-full bg-white shadow-md transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 transition-transform duration-200 ease-in-out`}
+        className={`fixed lg:static z-30 w-64 h-full bg-white shadow-md transform ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0 transition-transform duration-200 ease-in-out`}
       >
         <div className="p-4 border-b border-gray-200">
           <Link
@@ -87,6 +87,29 @@ const DashboardLayout = () => {
               >
                 <FiClock className="mr-3" style={{ color: "#E30613" }} />
                 <span>Pending Deliveries</span>
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/dashboard/completed-deliveries"
+                className="flex items-center p-3 rounded-lg hover:bg-red-50 group"
+                style={{ color: "#000000" }}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <FiCheckCircle className="mr-3" style={{ color: "#E30613" }} />
+                <span>Completed Deliveries</span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/dashboard/my-earnings"
+                className="flex items-center p-3 rounded-lg hover:bg-red-50 group"
+                style={{ color: "#000000" }}
+                onClick={() => setSidebarOpen(false)}
+              >
+                <FiDollarSign className="mr-3" style={{ color: "#E30613" }} />
+                <span>My Earnings</span>
               </Link>
             </li>
 

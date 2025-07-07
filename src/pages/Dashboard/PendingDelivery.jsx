@@ -2,6 +2,7 @@ import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../hook/useAxiosSecure";
 import useAuth from "../../hook/useAuth";
+import useTracking from "../../hook/useTracking";
 
 const fetchAssignedParcels = async (axiosSecure, riderEmail) => {
   const res = await axiosSecure.get(
@@ -21,6 +22,8 @@ const PendingDelivery = () => {
   const axiosSecure = useAxiosSecure();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { saveTracking } = useTracking();
+
   const riderEmail = user?.email;
 
   const {
@@ -34,13 +37,35 @@ const PendingDelivery = () => {
     enabled: !!riderEmail,
   });
 
-  const { mutate: updateDeliveryStatus, isPending: updating } = useMutation({
-    mutationFn: ({ parcelId, newStatus }) =>
-      updateParcelStatus({ axiosSecure, parcelId, newStatus }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["assignedParcels", riderEmail]);
-    },
-  });
+  const { mutateAsync: updateDeliveryStatus, isPending: updating } =
+    useMutation({
+      mutationFn: async ({ parcelId, newStatus, tracking_id }) => {
+        // Step 1: Update parcel status
+        const res = await updateParcelStatus({
+          axiosSecure,
+          parcelId,
+          newStatus,
+        });
+        console.log(tracking_id);
+
+        // Step 2: Save tracking entry
+        await saveTracking({
+          tracking_id,
+          status: newStatus === "in_transit" ? "Picked Up" : "Delivered",
+          details:
+            newStatus === "in_transit"
+              ? "Parcel has been picked up by rider."
+              : "Parcel has been delivered to receiver.",
+          updated_by: user?.email,
+          timestamp: new Date().toISOString(),
+        });
+
+        return res.data;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries(["assignedParcels", riderEmail]);
+      },
+    });
 
   if (isLoading) return <p>Loading parcels...</p>;
   if (isError) return <p>Error: {error.message}</p>;
@@ -71,6 +96,7 @@ const PendingDelivery = () => {
                 <strong>Status:</strong> {parcel.delivery_status}
               </p>
 
+              {/* Show buttons based on delivery status */}
               {parcel.delivery_status === "assigned" && (
                 <button
                   className="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
@@ -78,7 +104,8 @@ const PendingDelivery = () => {
                   onClick={() =>
                     updateDeliveryStatus({
                       parcelId: parcel._id,
-                      newStatus: "in_transit", // Change status to in_transit
+                      newStatus: "in_transit", // ✅ Change to in_transit
+                      tracking_id: parcel.tracking_id, // ✅ Send tracking_id
                     })
                   }
                 >
@@ -93,7 +120,8 @@ const PendingDelivery = () => {
                   onClick={() =>
                     updateDeliveryStatus({
                       parcelId: parcel._id,
-                      newStatus: "delivered", // Final delivery
+                      newStatus: "delivered", // ✅ Final delivery
+                      tracking_id: parcel.tracking_id, // ✅ Send tracking_id
                     })
                   }
                 >

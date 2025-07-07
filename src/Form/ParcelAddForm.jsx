@@ -3,6 +3,8 @@ import { toast } from "react-toastify";
 import { useForm, Controller } from "react-hook-form";
 import useAuth from "../hook/useAuth";
 import useAxiosSecure from "../hook/useAxiosSecure";
+import useTracking from "../hook/useTracking";
+import Swal from "sweetalert2";
 
 const ParcelAddForm = () => {
   const [activeSection, setActiveSection] = useState("parcelInfo");
@@ -10,6 +12,7 @@ const ParcelAddForm = () => {
   const [deliveryCost, setDeliveryCost] = useState(0);
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
+  const { saveTracking } = useTracking();
 
   const generateTrackingID = () => {
     const date = new Date();
@@ -102,10 +105,10 @@ const ParcelAddForm = () => {
     setDeliveryCost(cost);
     setShowCostModal(true);
   };
-
+const tracking_id = generateTrackingID();
   const handleConfirm = async () => {
     const formData = getValues();
-    // Save to database (simulated)
+
     const parcelData = {
       ...formData,
       creation_date: new Date().toISOString(),
@@ -114,7 +117,7 @@ const ParcelAddForm = () => {
       userEmail: user?.email,
       payment_status: "unpaid",
       delivery_status: "not_collected",
-      tracking_id: generateTrackingID(),
+      tracking_id,
     };
 
     console.log("Saving to database:", parcelData);
@@ -123,24 +126,35 @@ const ParcelAddForm = () => {
       const response = await axiosSecure.post("/parcels", parcelData);
       console.log("Parcel added:", response.data);
 
-      if (response.ok) {
-        toast.success("Parcel send successfully!", {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+      // 🔥 Save Tracking Log
+      saveTracking({
+        tracking_id: parcelData.tracking_id,
+        status: "Parcel Created",
+        details: "User created the parcel",
+        updated_by: user?.email,
+        timestamp: new Date().toISOString(),
+      });
+
+      if (response.status === 200) {
+        Swal.fire({
+          title: "Success!",
+          text: "Parcel sent successfully!",
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          // Optional: navigate after confirmation
+          // navigate("/dashboard");
         });
       }
     } catch (error) {
       console.error("Error adding parcel:", error);
-      alert("Failed to add parcel.");
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to add parcel.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
-
-    // Navigate to tracking page or dashboard
-    // navigate("/dashboard");
   };
 
   const validateSection = async (section) => {
